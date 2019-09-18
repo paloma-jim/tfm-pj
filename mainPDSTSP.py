@@ -279,6 +279,7 @@ def main():
     dist_center = 0
     num_drones = 1
     max_drone_time = 30
+    num_clients = 10
     # Drone solver: 'genetic', 'SJF', 'random'
     drone_solver = 'genetic'
 
@@ -291,7 +292,7 @@ def main():
     TAUPRIME_FILE = BASE_PATH + "tauprime.csv"
     CPRIME_FILE = BASE_PATH + "Cprime.csv"
 
-    tmatrix, tdrone, cdrone, ctruck = get_matrices_test_psp(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE, dist_center, ratio)
+    tmatrix, tdrone, cdrone, ctruck = get_matrices_test_psp(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE, dist_center, ratio, num_clients)
 
     cdrone_translated = [int(x) for x in cdrone]
 

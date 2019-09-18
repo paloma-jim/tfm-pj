@@ -129,6 +129,7 @@ def main():
 
 
     drone_battery_lifetime = 40
+    num_clients = 10
 
     BASE_PATH = "20140810T123437v1/"
     TAU_FILE = BASE_PATH + "tau.csv"
@@ -137,7 +138,7 @@ def main():
 
 
 
-    route_time_truck, ttruck, tdrone = get_matrices_test(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE)
+    route_time_truck, ttruck, tdrone = get_matrices_test(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE, num_clients)
 
     # n = 100
     # route_time_truck = generate_random_matrix(n, crop=num_custom)

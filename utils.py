@@ -33,13 +33,13 @@ def get_truck_drone_dicts(filename, num_custom, factor=0.5):
                 result_drone[k][j] = drone_val if drone_val > 0 else 1
     return result, result_drone
 
-def get_matrices_test(taufile, tauprimefile, cprimefile):
+def get_matrices_test(taufile, tauprimefile, cprimefile, num_clients):
     # customers = [x for x in 'ABCDEFGHIJKL']
-    customers = [str(x) for x in range(0, 11)]
+    customers = [str(x) for x in range(0, num_clients+1)]
     tau = pd.read_csv(taufile, names=customers).astype(int)
     tauprime = pd.read_csv(tauprimefile, names=customers).astype(int)
     cprime = set(pd.read_csv(cprimefile).columns)
-    full = set([str(x) for x in range(1, 11)])
+    full = set([str(x) for x in range(1, num_clients+1)])
     no_cdrone = [str(x) for x in full.difference(cprime)]
     tau.index = customers
     tauprime.index = customers
@@ -48,16 +48,16 @@ def get_matrices_test(taufile, tauprimefile, cprimefile):
 
     return tau.values, tau.to_dict(), tauprime.to_dict()
 
-def get_matrices_test_psp(taufile, tauprimefile, cprimefile, dist_center,ratio):
+def get_matrices_test_psp(taufile, tauprimefile, cprimefile, dist_center,ratio, num_clients):
     # customers = [x for x in 'ABCDEFGHIJKL']
-    customers = [str(x) for x in range(0, 11)]
+    customers = [str(x) for x in range(0, num_clients+1)]
     tau = pd.read_csv(taufile, names=customers).astype(int)
     tauprime = pd.read_csv(tauprimefile, names=customers).astype(int)
     cprime2 = pd.read_csv(cprimefile).columns
     cprime2 = set([int(x) for x in cprime2])
     aux = set([x for x in np.nonzero(tauprime.values[dist_center] >= ratio)[0] if x != dist_center])
     cprime = [str(x) for x in cprime2.difference(aux)]
-    full = set([str(x) for x in range(1, 11)])
+    full = set([str(x) for x in range(1, num_clients+1)])
     no_cdrone = [str(x) for x in full.difference(cprime)]
     tau.index = customers
     tauprime.index = customers

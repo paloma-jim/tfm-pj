@@ -1,1 +1,2 @@
-# MIA_TFM2
+# Trabajo de Fin de Máster - Inteligencia Artificial
+## Paloma Jimeno

@@ -126,13 +126,14 @@ def Vfn(i, route, tdrone, ttruck, drone_capacity):
 
 def main():
     drone_battery_lifetime = 40
+    num_clients=10
 
     BASE_PATH = "20140810T123437v1/"
     TAU_FILE = BASE_PATH + "tau.csv"
     TAUPRIME_FILE = BASE_PATH + "tauprime.csv"
     CPRIME_FILE = BASE_PATH + "Cprime.csv"
 
-    route_time_truck, ttruck, tdrone = get_matrices_test(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE)
+    route_time_truck, ttruck, tdrone = get_matrices_test(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE, num_clients)
 
     data = create_data_model(route_time_truck)
     # Create the routing index manager.
