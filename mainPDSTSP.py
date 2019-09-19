@@ -100,11 +100,6 @@ def solveTSP(ctruck, tmatrix, dist_center):
     return solution, solution_time
 
 
-
-def get_tmatrix(filename, num_custom):
-    return get_matrix(filename, num_custom)
-
-
 def get_truckMatrix(dist_center, cdrone, tmatrix):
     print(tmatrix[dist_center])
     truck_matrix = tmatrix.copy()

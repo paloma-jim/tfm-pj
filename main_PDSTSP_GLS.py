@@ -11,21 +11,21 @@ logging.basicConfig(level=logging.INFO)
 from utils import *
 
 
-# Creating the route
+# Creating the route for ORTOOLS
 def create_data_model(route_time_truck):
     data = dict()
     data['time_matrix'] = route_time_truck
     data['num_vehicles'] = 1
     return data
 
-
+# Print the route from OR TOOLS
 def print_solution(solution, solution_time):
     """Prints assignment on console."""
     plan_output = 'Route for vehicle 0:\n'
     print(' -> '.join(list(map(lambda x: str(x), solution))))
     print("Total time: {}".format(solution_time))
 
-
+# Get solution from the library in OR TOOLS
 def getSolution(manager, routing, assignment):
     """Prints assignment on console."""
     index = routing.Start(0)
@@ -39,7 +39,7 @@ def getSolution(manager, routing, assignment):
     route.append(manager.IndexToNode(index))
     return route, route_distance
 
-
+#Adjust index to show an understandable truck route
 def adjust_index(ctruck, solution):
     translate = dict()
     for x in ctruck:
@@ -62,7 +62,7 @@ def get_new_index(original, points, index):
     cop = np.delete(cop, complementary, axis=1)
     return new_index, cop
 
-
+# Method provided by OR Tools to solve the TSP
 def solveTSP(ctruck, tmatrix, dist_center):
     ctruck = [int(x) for x in ctruck]
     new_index, truck_matrix = get_new_index(tmatrix, ctruck, dist_center)
@@ -99,9 +99,6 @@ def solveTSP(ctruck, tmatrix, dist_center):
         print_solution(solution, solution_time)
     return solution, solution_time
 
-
-def get_tmatrix(filename, num_custom):
-    return get_matrix(filename, num_custom)
 
 
 def get_truckMatrix(dist_center, cdrone, tmatrix):
