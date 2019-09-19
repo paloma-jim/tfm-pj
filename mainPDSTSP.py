@@ -13,21 +13,21 @@ logging.basicConfig(level=logging.INFO)
 from utils import *
 
 
-# Creating the route
+# Creating the route for OR TOOLS
 def create_data_model(route_time_truck):
     data = dict()
     data['time_matrix'] = route_time_truck
     data['num_vehicles'] = 1
     return data
 
-
+# Print the route from OR TOOLS
 def print_solution(solution, solution_time):
     """Prints assignment on console."""
     plan_output = 'Route for vehicle 0:\n'
     print(' -> '.join(list(map(lambda x: str(x), solution))))
     print("Total time: {}".format(solution_time))
 
-
+# Get solution from the library in OR TOOLS
 def getSolution(manager, routing, assignment):
     """Prints assignment on console."""
     index = routing.Start(0)
@@ -41,7 +41,7 @@ def getSolution(manager, routing, assignment):
     route.append(manager.IndexToNode(index))
     return route, route_distance
 
-
+#Adjust index to show an understandable truck route
 def adjust_index(ctruck, solution):
     translate = dict()
     for x in ctruck:
@@ -52,7 +52,7 @@ def adjust_index(ctruck, solution):
     print(translate)
     return result
 
-
+#Generate new indexes with the new set of clients
 def get_new_index(original, points, index):
     points.sort()
     new_index = list(filter(lambda x: x[0] == index, [(x, i) for i, x in enumerate(points)]))[-1][1]
@@ -64,7 +64,7 @@ def get_new_index(original, points, index):
     cop = np.delete(cop, complementary, axis=1)
     return new_index, cop
 
-
+# Method provided by OR Tools to solve the TSP
 def solveTSP(ctruck, tmatrix, dist_center):
     ctruck = [int(x) for x in ctruck]
     new_index, truck_matrix = get_new_index(tmatrix, ctruck, dist_center)
@@ -99,19 +99,17 @@ def solveTSP(ctruck, tmatrix, dist_center):
         print_solution(solution, solution_time)
     return solution, solution_time
 
-
+# Create the cost matrix for the Truck
 def get_truckMatrix(dist_center, cdrone, tmatrix):
     print(tmatrix[dist_center])
     truck_matrix = tmatrix.copy()
     truck_matrix = np.delete(truck_matrix, cdrone, axis=0)
     truck_matrix = np.delete(truck_matrix, cdrone, axis=1)
-    #### Actualizar depot con el nuevo valor del distribution center
-    ### Se debe actualizar truck_matrix y generar nuevo data cada vez que se crea nueva truck_matrix
     data = create_data_model(truck_matrix)
     truck_matrix = data['time_matrix']
     return truck_matrix, data
 
-
+# Resolve PMS GA
 def solvePMSGA(customers, n_drones, time_matrix, dist_center, names):
     # Number of jobs
     n = len(customers)
@@ -126,7 +124,6 @@ def solvePMSGA(customers, n_drones, time_matrix, dist_center, names):
     # Genetic Algorithm : Iterations number
     GA_ITERATIONS = 10
 
-    # TODO log this line
     try:
         customers = [int(x) for x in customers]
     except Exception as e:
@@ -169,7 +166,7 @@ def solvePMSGA(customers, n_drones, time_matrix, dist_center, names):
     jobs_done = parse_drone_solution(population[0], jobsProcessingTime, final_names)
     return jobs_done, dronemkspan
 
-
+# Resolve PMS with SJF or random
 def solvePMS(customers, n_drones, time_matrix, dist_center, names, random_search=False):
     drone_solution = list()
     drone_list = ["D#" + str(x) for x in range(n_drones)]
@@ -233,7 +230,7 @@ def solvePMS(customers, n_drones, time_matrix, dist_center, names, random_search
         pdb.set_trace()
     return jobs_done, time_step
 
-
+# Determine the assignment of clients to drones and the time they spend to serve them
 def droneSolver(customers, n_drones, time_matrix, dist_center, names, solver_type='SJF'):
     jobs = list()
     total_time = -1
@@ -245,7 +242,7 @@ def droneSolver(customers, n_drones, time_matrix, dist_center, names, solver_typ
         jobs, total_time = solvePMSGA(customers, n_drones, time_matrix, dist_center, names)
     return jobs, int(round(total_time, 0))
 
-
+# Assign drone clients to the truck
 def swap(cdrone, ctruck, elements):
     copy_drone = cdrone.copy()
     copy_truck = ctruck.copy()
@@ -255,7 +252,7 @@ def swap(cdrone, ctruck, elements):
     copy_truck.sort(key=lambda x: int(x))
     return copy_drone, copy_truck
 
-
+# Print the result of the assignment of clients to drones
 def parse_drone_solution(chromosome, jobs, names):
 
     result = list()
@@ -278,19 +275,22 @@ def main():
     # Drone solver: 'genetic', 'SJF', 'random'
     drone_solver = 'genetic'
 
-    # Calculate drone and truck matrices
-    ratio = max_drone_time / 2
-    print("Max distance for drones: {}".format(ratio))
+    # # Calculate flight range - between two because it goes and return distribution center
+    flight_range = max_drone_time / 2
+    print("Max distance for drones: {}".format(flight_range))
 
+    # Location of the problem to solve
     BASE_PATH = "20140810T123437v1/"
     TAU_FILE = BASE_PATH + "tau.csv"
     TAUPRIME_FILE = BASE_PATH + "tauprime.csv"
     CPRIME_FILE = BASE_PATH + "Cprime.csv"
 
-    tmatrix, tdrone, cdrone, ctruck = get_matrices_test_psp(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE, dist_center, ratio, num_clients)
+    # Get cost matrix for truck and drone
+    tmatrix, tdrone, cdrone, ctruck = get_matrices_test_psp(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE, dist_center, flight_range, num_clients)
 
     cdrone_translated = [int(x) for x in cdrone]
 
+    # Initial Solution
     truck_solution, truck_time = solveTSP(ctruck, tmatrix, dist_center)
     drone_solution, drone_time = droneSolver(cdrone, num_drones, tdrone, dist_center, cdrone_translated,
                                              solver_type=drone_solver)
@@ -305,6 +305,7 @@ def main():
     candidate_drone_time = drone_time
     candidate_truck_time = truck_time
 
+    # Try with different combinations of drones to be assigned to the truck
     groups = [x for x in range(1, len(cdrone) + 1)]
     for i in groups:
         comby = [list(x) for x in combinations(cdrone, i)]

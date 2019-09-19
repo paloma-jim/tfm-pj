@@ -16,14 +16,14 @@ def create_data_model(route_time_truck):
     data['depot'] = 0
     return data
 
-
+# Print the route from OR TOOLS
 def print_solution(solution, solution_time):
     """Prints assignment on console."""
     plan_output = 'Route for vehicle 0:\n'
     print(' -> '.join(list(map(lambda x: str(x), solution))))
     print("Total time: {}".format(solution_time))
 
-
+# Get solution from the library in OR TOOLS
 def getSolution(manager, routing, assignment):
     """Prints assignment on console."""
     index = routing.Start(0)
@@ -37,6 +37,7 @@ def getSolution(manager, routing, assignment):
     route.append(manager.IndexToNode(index))
     return route, route_time
 
+# Partial Subroute for the dynamic programming function
 def Tsubroute(start, end, route, ttruck, tdrone, drone_capacity):
 
     sindex = [i for i, x in enumerate(route) if x == start][0]
@@ -71,7 +72,9 @@ def Tsubroute(start, end, route, ttruck, tdrone, drone_capacity):
     result['end_node'] = end
     return result
 
-
+# Example of an operation, i.e. when the drone is separated from the truck, serve a client and
+# it meets with the truck again in another location. In the meanwhile, the truck also serves
+# its clients
 def Ttriple(start, end, k, route, ttruck, tdrone, drone_capacity):
     time_truck = 0
     time_drone = -1
@@ -91,7 +94,7 @@ def Ttriple(start, end, k, route, ttruck, tdrone, drone_capacity):
         initial = element
     return max(time_drone, time_truck), drone_nodes, truck_nodes, time_drone, time_truck
 
-
+# Join all the partial solutions to generate the solution route
 def compound_solution(final_result, tab, initial_node, route):
     current_link = final_result[1]['truck_nodes'][0]
     result = list()
@@ -108,7 +111,7 @@ def compound_solution(final_result, tab, initial_node, route):
     result.reverse()
     return result
 
-
+# Recursive function that generates the sub-solutions for the final route
 def Vfn(i, route, tdrone, ttruck, drone_capacity):
     result = list()
     if i == 0:
@@ -128,11 +131,13 @@ def main():
     drone_battery_lifetime = 40
     num_clients=10
 
+    # Location of files
     BASE_PATH = "20140810T123437v1/"
     TAU_FILE = BASE_PATH + "tau.csv"
     TAUPRIME_FILE = BASE_PATH + "tauprime.csv"
     CPRIME_FILE = BASE_PATH + "Cprime.csv"
 
+    # Get cost matrix for the truck and the drone
     route_time_truck, ttruck, tdrone = get_matrices_test(TAU_FILE, TAUPRIME_FILE, CPRIME_FILE, num_clients)
 
     data = create_data_model(route_time_truck)
